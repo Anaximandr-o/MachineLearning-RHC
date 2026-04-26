@@ -297,6 +297,9 @@ dadosFinal <- dadosCancer %>%
   # O by_element = TRUE é necessário porque, sem ele, o código roda cada ponto do geomPacientes com cada ponto do geomHospitais, resultando nisso:
   # cannot allocate vector of size 224620.4 Gb (pesquisei e isso dá mais ou menos 220 terabytes. Sinistro.)
   
+  # --- Criação da variável deslocamentoTratamento ---
+  
+  
   # --- Cálculo da Lei dos 60 Dias (Lei nº 12.732/2012) ---
   # O tempo conta do diagnóstico definitivo até o primeiro tratamento
   dplyr::mutate(
