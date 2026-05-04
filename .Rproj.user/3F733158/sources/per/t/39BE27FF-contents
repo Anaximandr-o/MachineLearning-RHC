@@ -7,3 +7,4 @@ dados <- read_excel("D:/Estudos/DeepLearning/inicioTratamentoCancer/Centro Local
 dados_filtrado <- dados %>%
   filter(str_detect(Hierarquia, "^Centro Local \\(5\\)"))
 table(dados_filtrado$Hierarquia)
+saveRDS(dados_filtrado, "dados_filtrado.rds")
