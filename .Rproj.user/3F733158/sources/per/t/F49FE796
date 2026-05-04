@@ -3,7 +3,7 @@
     "path": "D:/Estudos/flow/MachineLearning-RHC/limpezaRHCantonio.R",
     "project_path": "limpezaRHCantonio.R",
     "type": "r_source",
-    "hash": "0",
+    "hash": "1094966165",
     "contents": "",
     "dirty": false,
     "created": 1777868754389.0,
@@ -12,15 +12,15 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "302,16",
-        "scrollLine": "294"
+        "cursorPosition": "318,54",
+        "scrollLine": "297"
     },
     "folds": "",
-    "lastKnownWriteTime": 1777870777,
+    "lastKnownWriteTime": 1777872145,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1777870777649,
+    "last_content_update": 1777872145529,
     "read_only": false,
     "read_only_alternatives": []
 }
