@@ -297,6 +297,25 @@ dadosFinal <- dadosCancer %>%
   # O by_element = TRUE é necessário porque, sem ele, o código roda cada ponto do geomPacientes com cada ponto do geomHospitais, resultando nisso:
   # cannot allocate vector of size 224620.4 Gb (pesquisei e isso dá mais ou menos 220 terabytes. Sinistro.)
   
+  # --- Criação da coluna classificacaoMunicipioResidencia e Hospital
+  caminhoCentro <- "D:/Estudos/DeepLearning/inicioTratamentoCancer/centroLocal.rds"
+  centroLocal <- readRDS(caminhoCentro)
+  dplyr::mutate(
+    classificacaoMunicipioResidencia = ifelse( # If else para verificar se o código do município está no centroLocal. Se tiver, é considerado interior. Caso não, capital.
+     PROCEDEN %in% centroLocal$codmun,
+     "Interior",
+     "Capital"
+    )
+  ) %>% 
+  
+  dplyr::mutate(
+    classificacaoMunicipioHospital = ifelse( # If else para verificar se o código do município está no centroLocal. Se tiver, é considerado interior. Caso não, capital.
+      MUUH %in% centroLocal$codmun,
+      "Interior",
+      "Capital"
+    )
+  ) %>% 
+  
   # --- Criação da variável deslocamentoTratamento ---
   
   
