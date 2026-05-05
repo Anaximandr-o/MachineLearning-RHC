@@ -16,7 +16,7 @@ set.seed(123)
 # ============================================
 # 2. Leitura dos Dados
 # ============================================
-caminho <- "D:/Estudos/DeepLearning/inicioTratamentoCancer/dados_RHC_Geral.RDS"
+caminho <- "C:/Estudos/DeepLearning/inicioTratamentoCancer/dados_RHC_Geral.RDS"
 dadosCancer <- readRDS(caminho)
 
 # ============================================
@@ -298,7 +298,7 @@ dadosFinal <- dadosCancer %>%
   # cannot allocate vector of size 224620.4 Gb (pesquisei e isso dá mais ou menos 220 terabytes. Sinistro.)
   
   # --- Criação da coluna classificacaoMunicipioResidencia e Hospital
-  caminhoCentro <- "D:/Estudos/DeepLearning/inicioTratamentoCancer/centroLocal.rds"
+  caminhoCentro <- "C:/Estudos/DeepLearning/inicioTratamentoCancer/centroLocal.rds"
   centroLocal <- readRDS(caminhoCentro)
   dplyr::mutate(
     classificacaoMunicipioResidencia = ifelse( # If else para verificar se o código do município está no centroLocal. Se tiver, é considerado interior. Caso não, capital.
@@ -379,5 +379,5 @@ dadosFinal$LOCTUPRO <- NULL
 dadosFinal$DATAOBITO <- NULL
 dadosFinal$HISTFAMC <- NULL
 
-arrow::write_parquet(dadosFinal, "D:/Estudos/DeepLearning/inicioTratamentoCancer/dadosFinal.parquet")
+arrow::write_parquet(dadosFinal, "C:/Estudos/DeepLearning/inicioTratamentoCancer/dadosFinal.parquet")
 
