@@ -26,7 +26,7 @@ muni <- read_municipality(code_muni = "all", year = 2022) # Cria um data frame c
 
 muniPontos <- st_centroid(muni) |>
   dplyr::mutate(code_muni = as.character(code_muni)) |> # Fiz isso porque code_muni é double, enquanto PROCEDEN/MUUH é character, então dá erro no left join. Isso resolve :)
-  dplyr::select(code_muni, geom) # Cria um data frame com os centróides de todos os municípios, selecionando apenas seus códigos e geometrias
+  dplyr::select(code_muni, geometry) # Cria um data frame com os centróides de todos os municípios, selecionando apenas seus códigos e geometrias
 
 dadosFinal <- dadosCancer %>%
   # --- Transformação de idades impossíveis (x<0 & x>120) em NA ---
@@ -285,13 +285,13 @@ dadosFinal <- dadosCancer %>%
     muniPontos,
     by = c("PROCEDEN" = "code_muni") 
   ) %>% 
-  dplyr::rename(geomPacientes = geom) %>% # Renomeando a coluna para que ela seja única
+  dplyr::rename(geomPacientes = geometry) %>% # Renomeando a coluna para que ela seja única
   
   dplyr::left_join( # Left join com os códigos dos hospitais
     muniPontos,
     by = c("MUUH" = "code_muni")
   ) %>% 
-  dplyr::rename(geomHospitais = geom) %>% # Renomeando a coluna para que ela seja única
+  dplyr::rename(geomHospitais = geometry) %>% # Renomeando a coluna para que ela seja única
   
   dplyr::mutate(distanciaResidenciaHospital = as.numeric(st_distance(geomPacientes, geomHospitais, by_element = TRUE))/1000) %>% # Dividimos por 1000 para transformar em kms
   # O by_element = TRUE é necessário porque, sem ele, o código roda cada ponto do geomPacientes com cada ponto do geomHospitais, resultando nisso:
@@ -317,7 +317,18 @@ dadosFinal <- dadosCancer %>%
   ) %>% 
   
   # --- Criação da variável deslocamentoTratamento ---
-  
+  dplyr::mutate(
+    deslocamentoTratamento = case_when(
+      classificacaoMunicipioResidencia == "Interior" & 
+        classificacaoMunicipioHospital == "Interior" ~ "Permanência no Interior",
+      classificacaoMunicipioResidencia == "Capital" &
+        classificacaoMunicipioHospital == "Capital" ~ "Permanência na Capital",
+      classificacaoMunicipioResidencia == "Interior" &
+        classificacaoMunicipioHospital == "Capital" ~ "Êxodo rural",
+      classificacaoMunicipioResidencia == "Capital" &
+        classificacaoMunicipioHospital == "Interior" ~ "Êxodo urbano"
+    )
+  ) %>% 
   
   # --- Cálculo da Lei dos 60 Dias (Lei nº 12.732/2012) ---
   # O tempo conta do diagnóstico definitivo até o primeiro tratamento
