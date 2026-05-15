@@ -16,7 +16,7 @@ set.seed(123)
 # ============================================
 # 2. Leitura dos Dados
 # ============================================
-caminho <- "D:/Estudos/DeepLearning/inicioTratamentoCancer/dados_RHC_Geral.RDS"
+caminho <- "C:/Estudos/DeepLearning/inicioTratamentoCancer/dados_RHC_Geral.RDS"
 dadosCancer <- readRDS(caminho)
 
 # ============================================
@@ -285,13 +285,13 @@ dadosFinal <- dadosCancer %>%
     muniPontos,
     by = c("PROCEDEN" = "code_muni") 
   ) %>% 
-  dplyr::rename(geomPacientes = geom) %>% # Renomeando a coluna para que ela seja única
+  dplyr::rename(geomPacientes = geometry) %>% # Renomeando a coluna para que ela seja única
   
   dplyr::left_join( # Left join com os códigos dos hospitais
     muniPontos,
     by = c("MUUH" = "code_muni")
   ) %>% 
-  dplyr::rename(geomHospitais = geom) %>% # Renomeando a coluna para que ela seja única
+  dplyr::rename(geomHospitais = geometry) %>% # Renomeando a coluna para que ela seja única
   
   dplyr::mutate(distanciaResidenciaHospital = as.numeric(st_distance(geomPacientes, geomHospitais, by_element = TRUE))/1000) # Dividimos por 1000 para transformar em kms
   # O by_element = TRUE é necessário porque, sem ele, o código roda cada ponto do geomPacientes com cada ponto do geomHospitais, resultando nisso:
