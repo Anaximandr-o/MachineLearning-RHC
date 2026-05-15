@@ -16,7 +16,7 @@ set.seed(123)
 # ============================================
 # 2. Leitura dos Dados
 # ============================================
-caminho <- "C:/Estudos/DeepLearning/inicioTratamentoCancer/dados_RHC_Geral.RDS"
+caminho <- "D:/Estudos/DeepLearning/inicioTratamentoCancer/dados_RHC_Geral.RDS"
 dadosCancer <- readRDS(caminho)
 
 # ============================================
@@ -26,7 +26,7 @@ muni <- read_municipality(code_muni = "all", year = 2022) # Cria um data frame c
 
 muniPontos <- st_centroid(muni) |>
   dplyr::mutate(code_muni = as.character(code_muni)) |> # Fiz isso porque code_muni é double, enquanto PROCEDEN/MUUH é character, então dá erro no left join. Isso resolve :)
-  dplyr::select(code_muni, geometry) # Cria um data frame com os centróides de todos os municípios, selecionando apenas seus códigos e geometrias
+  dplyr::select(code_muni) # Cria um data frame com os centróides de todos os municípios, selecionando apenas seus códigos e geometrias
 
 dadosFinal <- dadosCancer %>%
   # --- Transformação de idades impossíveis (x<0 & x>120) em NA ---
@@ -285,21 +285,22 @@ dadosFinal <- dadosCancer %>%
     muniPontos,
     by = c("PROCEDEN" = "code_muni") 
   ) %>% 
-  dplyr::rename(geomPacientes = geometry) %>% # Renomeando a coluna para que ela seja única
+  dplyr::rename(geomPacientes = geom) %>% # Renomeando a coluna para que ela seja única
   
   dplyr::left_join( # Left join com os códigos dos hospitais
     muniPontos,
     by = c("MUUH" = "code_muni")
   ) %>% 
-  dplyr::rename(geomHospitais = geometry) %>% # Renomeando a coluna para que ela seja única
+  dplyr::rename(geomHospitais = geom) %>% # Renomeando a coluna para que ela seja única
   
-  dplyr::mutate(distanciaResidenciaHospital = as.numeric(st_distance(geomPacientes, geomHospitais, by_element = TRUE))/1000) %>% # Dividimos por 1000 para transformar em kms
+  dplyr::mutate(distanciaResidenciaHospital = as.numeric(st_distance(geomPacientes, geomHospitais, by_element = TRUE))/1000) # Dividimos por 1000 para transformar em kms
   # O by_element = TRUE é necessário porque, sem ele, o código roda cada ponto do geomPacientes com cada ponto do geomHospitais, resultando nisso:
   # cannot allocate vector of size 224620.4 Gb (pesquisei e isso dá mais ou menos 220 terabytes. Sinistro.)
   
   # --- Criação da coluna classificacaoMunicipioResidencia e Hospital
-  caminhoCentro <- "C:/Estudos/DeepLearning/inicioTratamentoCancer/centroLocal.rds"
+  caminhoCentro <- "D:/Estudos/DeepLearning/inicioTratamentoCancer/centroLocal.rds"
   centroLocal <- readRDS(caminhoCentro)
+  dadosFinal <- dadosFinal %>% 
   dplyr::mutate(
     classificacaoMunicipioResidencia = ifelse( # If else para verificar se o código do município está no centroLocal. Se tiver, é considerado interior. Caso não, capital.
      PROCEDEN %in% centroLocal$codmun,
@@ -390,5 +391,5 @@ dadosFinal$LOCTUPRO <- NULL
 dadosFinal$DATAOBITO <- NULL
 dadosFinal$HISTFAMC <- NULL
 
-arrow::write_parquet(dadosFinal, "C:/Estudos/DeepLearning/inicioTratamentoCancer/dadosFinal.parquet")
+arrow::write_parquet(dadosFinal, "D:/Estudos/DeepLearning/inicioTratamentoCancer/dadosFinal.parquet")
 
