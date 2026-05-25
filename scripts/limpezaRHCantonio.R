@@ -389,5 +389,5 @@ dadosFinal$LOCTUPRO <- NULL
 dadosFinal$DATAOBITO <- NULL
 dadosFinal$HISTFAMC <- NULL
 
-arrow::write_parquet(dadosFinal, "data/dadosFinal.parquet")
+arrow::write_parquet(dadosFinal, "outputs/dadosFinal.parquet")
 
