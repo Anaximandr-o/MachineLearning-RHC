@@ -5,10 +5,7 @@
 .positai
 
 # Dados
-data/*.RDS
-data/*.rds
-data/*.parquet
-data/*.csv
+data/dados_RHC_Geral.RDS
 
 # Jupyter
 .ipynb_checkpoints/
