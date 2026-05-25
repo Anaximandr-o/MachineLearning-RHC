@@ -16,7 +16,7 @@ set.seed(123)
 # ============================================
 # 2. Leitura dos Dados
 # ============================================
-dadosCancer <- readRDS("dados_RHC_Geral.RDS")
+dadosCancer <- readRDS("data/dados_RHC_Geral.RDS")
 
 # ============================================
 # 3. Tratamento, Limpeza e Engenharia de Atributos
@@ -389,5 +389,5 @@ dadosFinal$LOCTUPRO <- NULL
 dadosFinal$DATAOBITO <- NULL
 dadosFinal$HISTFAMC <- NULL
 
-arrow::write_parquet(dadosFinal, "dadosFinal.parquet")
+arrow::write_parquet(dadosFinal, "data/dadosFinal.parquet")
 
