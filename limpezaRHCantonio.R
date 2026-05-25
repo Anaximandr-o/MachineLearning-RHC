@@ -16,8 +16,7 @@ set.seed(123)
 # ============================================
 # 2. Leitura dos Dados
 # ============================================
-caminho <- "C:/Estudos/DeepLearning/inicioTratamentoCancer/dados_RHC_Geral.RDS"
-dadosCancer <- readRDS(caminho)
+dadosCancer <- readRDS("dados_RHC_Geral.RDS")
 
 # ============================================
 # 3. Tratamento, Limpeza e Engenharia de Atributos
