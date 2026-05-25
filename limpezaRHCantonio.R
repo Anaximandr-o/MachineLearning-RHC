@@ -297,7 +297,7 @@ dadosFinal <- dadosCancer %>%
   # cannot allocate vector of size 224620.4 Gb (pesquisei e isso dá mais ou menos 220 terabytes. Sinistro.)
   
   # --- Criação da coluna classificacaoMunicipioResidencia e Hospital
-  centroLocal <- readRDS("centroLocal.rds")
+  centroLocal <- readRDS("data/centroLocal.rds")
   dadosFinal <- dadosFinal %>% 
   dplyr::mutate(
     classificacaoMunicipioResidencia = ifelse( # If else para verificar se o código do município está no centroLocal. Se tiver, é considerado interior. Caso não, capital.
