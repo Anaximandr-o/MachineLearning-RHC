@@ -3,3 +3,15 @@
 .RData
 .Ruserdata
 .positai
+
+# Dados
+data/*.RDS
+data/*.rds
+data/*.parquet
+data/*.csv
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Anaconda
+anaconda_projects/
