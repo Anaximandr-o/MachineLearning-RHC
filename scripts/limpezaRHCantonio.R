@@ -327,6 +327,14 @@ dadosFinal <- dadosCancer %>%
       classificacaoMunicipioResidencia == "Capital" &
         classificacaoMunicipioHospital == "Interior" ~ "Êxodo urbano"
     )
+  ) %>%
+  # --- Agrupando categorias de escolaridade ---
+  dplyr::mutate(
+    INSTRUC = case_when(
+      INSTRUC %in% c("Fundamental incompleto", "Fundamental completo") ~ "Fundamental",
+      INSTRUC %in% c("Superior incompleto", "Superior completo") ~ "Superior",
+      TRUE ~ INSTRUC
+    )
   ) %>% 
   
   # --- Cálculo da Lei dos 60 Dias (Lei nº 12.732/2012) ---
@@ -355,6 +363,13 @@ dadosFinal <- dadosCancer %>%
 #glimpse(dadosFinal)
 #count(dadosFinal, atraso60) %>% 
 #  mutate(prop = n / sum(n)) # relativamente balanceados
+  
+# Transformando numéricas em categóricas
+  dadosFinal <- dadosFinal %>%
+    mutate(
+      TNM = as.character(TNM),
+      PTNM = as.character(PTNM)
+    )
 
 # Removendo variáveis desnecessárias
 dadosFinal$geomPacientes <- NULL
