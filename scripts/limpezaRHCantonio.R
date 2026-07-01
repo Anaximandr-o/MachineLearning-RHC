@@ -335,7 +335,26 @@ dadosFinal <- dadosCancer %>%
       INSTRUC %in% c("Superior incompleto", "Superior completo") ~ "Superior",
       TRUE ~ INSTRUC
     )
-  ) %>% 
+  ) %>%
+  
+  # --- Transformando behavior_num em uma variável legível ---
+  # behavior_num foi uma variável gerada a partir da variável TIPOHIST, extraindo o número após a barra. 
+  # Esse código transforma a variável em factor e dá nomes aos números, que representam o comportamento do tumor.
+  dplyr::mutate( # Aproveitei para mudar o nome da variável e deixar mais intuitivo
+    comportamentoTumor = factor(behavior_num, levels = c(0, 1, 2, 3, 6, 9),
+      labels = c(
+        "Benigno",
+        "Borderline",
+        "In situ",
+        "Maligno primário",
+        "Metastático",
+        "Origem incerta")
+      )
+    )%>%
+    select(-behavior_num)%>% # Removendo a variável com o nome antigo
+    
+    # Remove da base de dados os casos que não se encaixam como câncer
+    dplyr::filter(!comportamentoTumor %in% c("Benigno", "Borderline")) %>%
   
   # --- Cálculo da Lei dos 60 Dias (Lei nº 12.732/2012) ---
   # O tempo conta do diagnóstico definitivo até o primeiro tratamento
@@ -381,6 +400,16 @@ dadosFinal$CNES <- NULL
 dadosFinal$TPCASO <- NULL
 dadosFinal$VALOR_TOT <- NULL
 dadosFinal$ESTADIAG <- NULL
+dadosFinal$TIPOHIST_behav <- NULL
+dadosFinal$TIPOHIST_chr <- NULL
+dadosFinal$TIPOHIST_morph4 <- NULL
+dadosFinal$icdo3_morph4 <- NULL
+dadosFinal$behavior_label <- NULL
+dadosFinal$icdo3_description <- NULL
+dadosFinal$icdo3_site_field <- NULL
+dadosFinal$icd9cm <- NULL
+dadosFinal$icd10 <- NULL
+dadosFinal$icd10cm <- NULL
 
 # Removendo datas que permitem ao modelo "prever" o futuro
 dadosFinal$DTDIAGNO <- NULL
