@@ -13,3 +13,4 @@ data/dados_RHC_Geral.RDS
 
 # Anaconda
 anaconda_projects/
+.RDataTmp
