@@ -175,37 +175,31 @@ dadosFinal <- dadosCancer %>%
   # --- Transformando e agrupando os valores do Código Brasileiro de Ocupações ---
   dplyr::mutate(
     OcupacaoAgregado = dplyr::case_when(
-      OCUPACAO %in% c("888") ~ "Estudantes e crianças",
+      OCUPACAO %in% c("888", "88888") ~ "Estudantes e crianças",
       OCUPACAO %in% c("540", "520", "552") ~ "Serviços domésticos e limpeza",
-      OCUPACAO %in% c("639", "621", "664", "669", "663", "612") ~ "Agricultura, agropecuária e aquicultura",
-      OCUPACAO %in% c("985", "989") ~ "Transportes",
-      OCUPACAO %in% c("410", "451", "432", "490", "441", "421") ~ "Comércio e vendas",
-      OCUPACAO %in% c("149", "142", "141", "139", "131", "143") ~ "Professores",
+      OCUPACAO %in% c("639", "621", "664", "669", "663", "612", "020", "671", "611", "649", "600") ~ "Agricultura, agropecuária, florestal e aquicultura",
+      OCUPACAO %in% c("985", "989", "360") ~ "Transportes",
+      OCUPACAO %in% c("410", "451", "432", "490", "441", "421", "243", "452") ~ "Comércio e vendas",
+      OCUPACAO %in% c("149", "142", "141", "139", "131", "143", "144") ~ "Professores",
       OCUPACAO %in% c("795", "791", "811", "560", "799", "833", "754", "801") ~ "Trabalhadores manuais e artesanais (alfaiates, marceneiros)",
       OCUPACAO %in% c("531", "776", "532", "779", "774") ~ "Alimentação e serviços",
       OCUPACAO %in% c("214") ~ "Funcionários públicos",
       OCUPACAO %in% c("570") ~ "Estética e beleza",
-      OCUPACAO %in% c("991") ~ "Trabalhadores braçais",
-      OCUPACAO %in% c("072", "071", "572", "061", "073", "074", "067") ~ "Saúde",
-      OCUPACAO %in% c("959", "951", "954", "855", "969", "859", "872", "021", "034", "701", "974", "029") ~ "Construção civil",
+      OCUPACAO %in% c("991", "971") ~ "Trabalhadores braçais",
+      OCUPACAO %in% c("072", "071", "572", "061", "073", "074", "067", "063", "079") ~ "Saúde",
+      OCUPACAO %in% c("959", "951", "954", "855", "969", "859", "872", "021", "034", "701", "974", "029", "871") ~ "Construção civil",
       OCUPACAO %in% c("843", "845") ~ "Mecânica",
-      OCUPACAO %in% c("452") ~ "Vendedores ambulantes",
-      OCUPACAO %in% c("311", "393", "092", "093", "331", "321", "319", "339", "399", "241", "030") ~ "Administrativo e escritórios",
-      OCUPACAO %in% c("583", "589", "582") ~ "Policiais, Guardas e serviços de proteção",
-      OCUPACAO %in% c("939", "931") ~ "Pintores",
+      OCUPACAO %in% c("311", "393", "092", "093", "331", "321", "319", "339", "399", "241", "030", "091") ~ "Administrativo, contabilidade, economia e escritórios",
+      OCUPACAO %in% c("583", "589", "582", "581") ~ "Policiais, guardas, bombeiros e serviços de proteção",
       OCUPACAO %in% c("121") ~ "Direito",
       OCUPACAO %in% c("332", "394", "380") ~ "Atendimento ao público",
-      OCUPACAO %in% c("174") ~ "Empresários",
-      OCUPACAO %in% c("729", "832") ~ "Indústria e metalurgia",
+      OCUPACAO %in% c("174", "329") ~ "Empresários e diretores de empresa",
+      OCUPACAO %in% c("729", "832", "835", "939", "931", "179") ~ "Indústria e metalurgia",
       OCUPACAO %in% c("039") ~ "Técnicos",
-      OCUPACAO %in% c("X70", "X50") ~ "Não classificados",
+      OCUPACAO %in% c("X70", "X50", "X60", "X40", "X", "X80") ~ "Não classificados",
       OCUPACAO %in% c("599") ~ "Turismo",
-      
-      
-      
-      
-      
-      TRUE ~ NA_character_
+      OCUPACAO %in% c("152", "163") ~ "Jornalistas, fotógrafos e operadores de câmeras",
+      TRUE ~ "Outros" # Ocupações com <1000 pacientes
     )
   ) %>%
   
@@ -284,7 +278,8 @@ dadosFinal <- dadosCancer %>%
     select(-behavior_num)%>% # Removendo a variável com o nome antigo
     
     # Remove da base de dados os casos que não se encaixam como câncer
-    dplyr::filter(!comportamentoTumor %in% c("Benigno", "Borderline")) %>%
+    dplyr::filter(!comportamentoTumor %in% c("Benigno", "Borderline", "In situ")) %>%
+    droplevels() |> 
   
   # --- Cálculo da Lei dos 60 Dias (Lei nº 12.732/2012) ---
   # O tempo conta do diagnóstico definitivo até o primeiro tratamento
