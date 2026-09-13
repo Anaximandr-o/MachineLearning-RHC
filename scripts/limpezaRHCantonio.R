@@ -81,20 +81,6 @@ dadosFinal <- dadosCancer %>%
     )
   ) %>%
   
-  # --- Transformação da CLITRAT "Sem informação" em NA ---
-  dplyr::mutate(
-    CLITRAT = factor(
-      dplyr::na_if(as.character(CLITRAT), "Sem informação")
-    )
-  ) %>%
-  
-  # --- Transformação da HISTFAMC "Sem informação" em NA ---
-  dplyr::mutate(
-    HISTFAMC = factor(
-      dplyr::na_if(as.character(HISTFAMC), "Sem informação")
-    )
-  ) %>%
-  
   # --- Transformação da ALCOOLIS "Sem informação" em NA ---
   dplyr::mutate(
     ALCOOLIS = factor(
@@ -109,7 +95,7 @@ dadosFinal <- dadosCancer %>%
     )
   ) %>%
   
-  # --- Transformação das anomalias de ESTRADES em NA ---
+  # --- Transformação das anomalias de ESTADRES em NA ---
   dplyr::mutate(
     ESTADRES = dplyr::case_when(
       ESTADRES %in% c("77", "99") ~ NA_character_,
@@ -139,14 +125,6 @@ dadosFinal <- dadosCancer %>%
       UFUH %in% c("MG", "SP", "RJ", "ES") ~ "Sudeste",
       UFUH %in% c("PR", "SC", "RS") ~ "Sul",
       TRUE ~ NA_character_
-    )
-  ) %>% 
-  
-  # --- Transformando 1899, a data "sentinela", em NA na coluna ANOPRIDI ---
-  dplyr::mutate(
-    ANOPRIDI = dplyr::case_when(
-      ANOPRIDI == 1899 ~ NA_integer_,
-      TRUE ~ ANOPRIDI
     )
   ) %>% 
   
@@ -180,14 +158,6 @@ dadosFinal <- dadosCancer %>%
     ESTADIAM = as.factor(ESTADIAM)
   ) %>% 
   
-  # --- Transformando 8888 e 9999 em NA na coluna ANTRI ---
-  dplyr::mutate(
-    ANTRI = dplyr::case_when(
-      ANTRI %in% c(8888, 9999) ~ NA_integer_,
-      TRUE ~ ANTRI
-    )
-  ) %>%
-  
   # --- Transformação da BASMAIMP "Sem informação" em NA ---
   dplyr::mutate(
     BASMAIMP = factor(
@@ -202,82 +172,42 @@ dadosFinal <- dadosCancer %>%
     )
   ) %>%
   
-  # --- Transformação da  RZNTR "Sem informação" em NA ---
+  # --- Transformando e agrupando os valores do Código Brasileiro de Ocupações ---
   dplyr::mutate(
-    RZNTR = factor(
-      dplyr::na_if(as.character(RZNTR), "Sem informação")
+    OcupacaoAgregado = dplyr::case_when(
+      OCUPACAO %in% c("888") ~ "Estudantes e crianças",
+      OCUPACAO %in% c("540", "520", "552") ~ "Serviços domésticos e limpeza",
+      OCUPACAO %in% c("639", "621", "664", "669", "663", "612") ~ "Agricultura, agropecuária e aquicultura",
+      OCUPACAO %in% c("985", "989") ~ "Transportes",
+      OCUPACAO %in% c("410", "451", "432", "490", "441", "421") ~ "Comércio e vendas",
+      OCUPACAO %in% c("149", "142", "141", "139", "131", "143") ~ "Professores",
+      OCUPACAO %in% c("795", "791", "811", "560", "799", "833", "754", "801") ~ "Trabalhadores manuais e artesanais (alfaiates, marceneiros)",
+      OCUPACAO %in% c("531", "776", "532", "779", "774") ~ "Alimentação e serviços",
+      OCUPACAO %in% c("214") ~ "Funcionários públicos",
+      OCUPACAO %in% c("570") ~ "Estética e beleza",
+      OCUPACAO %in% c("991") ~ "Trabalhadores braçais",
+      OCUPACAO %in% c("072", "071", "572", "061", "073", "074", "067") ~ "Saúde",
+      OCUPACAO %in% c("959", "951", "954", "855", "969", "859", "872", "021", "034", "701", "974", "029") ~ "Construção civil",
+      OCUPACAO %in% c("843", "845") ~ "Mecânica",
+      OCUPACAO %in% c("452") ~ "Vendedores ambulantes",
+      OCUPACAO %in% c("311", "393", "092", "093", "331", "321", "319", "339", "399", "241", "030") ~ "Administrativo e escritórios",
+      OCUPACAO %in% c("583", "589", "582") ~ "Policiais, Guardas e serviços de proteção",
+      OCUPACAO %in% c("939", "931") ~ "Pintores",
+      OCUPACAO %in% c("121") ~ "Direito",
+      OCUPACAO %in% c("332", "394", "380") ~ "Atendimento ao público",
+      OCUPACAO %in% c("174") ~ "Empresários",
+      OCUPACAO %in% c("729", "832") ~ "Indústria e metalurgia",
+      OCUPACAO %in% c("039") ~ "Técnicos",
+      OCUPACAO %in% c("X70", "X50") ~ "Não classificados",
+      OCUPACAO %in% c("599") ~ "Turismo",
+      
+      
+      
+      
+      
+      TRUE ~ NA_character_
     )
   ) %>%
-  
-  # --- Transformando 1899, a data "sentinela", em NA na coluna DTINITRT ---
-  dplyr::mutate(
-    DTINITRT = dplyr::case_when(
-      DTINITRT == 1899 ~ NA_integer_,
-      TRUE ~ DTINITRT
-    )
-  ) %>% 
-  
-  # --- Transformação da  PRITRATH "Sem informação" em NA ---
-  dplyr::mutate(
-    PRITRATH = factor(
-      dplyr::na_if(as.character(PRITRATH), "Sem informação")
-    )
-  ) %>%
-  
-  # --- Transformação da  ESTDFIMT "Sem informação" em NA ---
-  dplyr::mutate(
-    ESTDFIMT = factor(
-      dplyr::na_if(as.character(ESTDFIMT), "Sem informação")
-    )
-  ) %>%
-  
-  # --- Formatação de Datas ---
-  dplyr::mutate(
-    DTDIAGNO   = as_date(DTDIAGNO),
-    DATAINITRT = as_date(DATAINITRT)
-  ) %>%
-  
-  # --- Transformando datas "1899-12-30" em NA na coluna DTDIAGNO---
-  dplyr::mutate(
-    DTDIAGNO = dplyr::case_when(
-      format(DTDIAGNO, "%Y") == "1899" ~ as.Date(NA),
-      TRUE ~ DTDIAGNO
-    )
-  ) %>% 
-  
-  # --- Transformando datas menores que 1900 em "20**" ou "19**" na coluna DTDIAGNO ---
-  dplyr::mutate(
-    DTDIAGNO = dplyr::if_else(
-      year(DTDIAGNO) < 1900, 
-      make_date(
-        year = if_else(
-          year(DTDIAGNO) %% 100 < 25,
-          2000 + year(DTDIAGNO) %% 100,
-          1900 + year(DTDIAGNO) %% 100
-        ),
-        month = month(DTDIAGNO),
-        day = day(DTDIAGNO)
-      ),
-      DTDIAGNO
-      )
-    ) %>% 
-  
-  # --- Transformando datas menores que 1900 em "20**" ou "19**" na coluna DTTRIAGE (não existe datas 1899) ---
-  dplyr::mutate(
-    DTTRIAGE = dplyr::if_else(
-      year(DTTRIAGE) < 1900, 
-      make_date(
-        year = if_else(
-          year(DTTRIAGE) %% 100 < 25,
-          2000 + year(DTTRIAGE) %% 100,
-          1900 + year(DTTRIAGE) %% 100
-        ),
-        month = month(DTTRIAGE),
-        day = day(DTTRIAGE)
-      ),
-      DTTRIAGE
-    )
-  ) %>% 
   
   # --- Criação da variável distância entre municípios (residência e hospital) ---
   dplyr::left_join( # Left join com os códigos dos pacientes
@@ -434,4 +364,27 @@ dadosFinal$DATAOBITO <- NULL
 dadosFinal$HISTFAMC <- NULL
 
 arrow::write_parquet(dadosFinal, "outputs/dadosFinal.parquet")
+
+# Dividindo o banco entre as 5 regiões do país
+# Importante notar que esse processo retira NAs e também não contabiliza pacientes do exterior
+
+dadosNorte <- dadosFinal |> 
+  dplyr::filter(RegiaoResidencia == "Norte")
+arrow::write_parquet(dadosNorte, "outputs/dadosNorte.parquet")
+
+dadosNordeste <- dadosFinal |> 
+  dplyr::filter(RegiaoResidencia == "Nordeste")
+arrow::write_parquet(dadosNordeste, "outputs/dadosNordeste.parquet")
+
+dadosCentroOeste <- dadosFinal |> 
+  dplyr::filter(RegiaoResidencia == "Centro-Oeste")
+arrow::write_parquet(dadosCentroOeste, "outputs/dadosCentroOeste.parquet")
+
+dadosSudeste <- dadosFinal |> 
+  dplyr::filter(RegiaoResidencia == "Sudeste")
+arrow::write_parquet(dadosSudeste, "outputs/dadosSudeste.parquet")
+
+dadosSul <- dadosFinal |> 
+  dplyr::filter(RegiaoResidencia == "Sul")
+arrow::write_parquet(dadosSul, "outputs/dadosSul.parquet")
 
