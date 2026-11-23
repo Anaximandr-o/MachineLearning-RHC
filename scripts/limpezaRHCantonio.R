@@ -11,12 +11,15 @@ library(sf)
 library(arrow)
 
 # Definição de semente para reprodutibilidade
-set.seed(123) 
+set.seed(123)
+
+# Testar o banco final
+teste <- arrow::read_parquet("../outputs/dadosFinal.parquet")
 
 # ============================================
 # 2. Leitura dos Dados
 # ============================================
-dadosCancer <- readRDS("data/dados_RHC_Geral.RDS")
+dadosCancer <- readRDS("../data/dados_RHC_Geral.RDS")
 
 # ============================================
 # 3. Tratamento, Limpeza e Engenharia de Atributos
@@ -221,7 +224,7 @@ dadosFinal <- dadosCancer %>%
   # cannot allocate vector of size 224620.4 Gb (pesquisei e isso dá mais ou menos 220 terabytes. Sinistro.)
   
   # --- Criação da coluna classificacaoMunicipioResidencia e Hospital
-  centroLocal <- readRDS("data/centroLocal.rds")
+  centroLocal <- readRDS("../data/centroLocal.rds")
   dadosFinal <- dadosFinal %>% 
   dplyr::mutate(
     classificacaoMunicipioResidencia = ifelse( # If else para verificar se o código do município está no centroLocal. Se tiver, é considerado interior. Caso não, capital.
@@ -280,6 +283,36 @@ dadosFinal <- dadosCancer %>%
     # Remove da base de dados os casos que não se encaixam como câncer
     dplyr::filter(!comportamentoTumor %in% c("Benigno", "Borderline", "In situ")) %>%
     droplevels() |> 
+    
+  # --- Tratando LOCTUDET e melhorando a legibilidade
+    dplyr::mutate(
+      LOCTUDET = case_when(
+        LOCTUDET %in% c("C","C99") ~ NA_integer_,
+        LOCTUDET %in% ("C39") ~ "Outras localizações do aparelho respiratório",
+        LOCTUDET %in% ("C43") ~ "Pele",
+        LOCTUDET %in% ("C45") ~ "Mesotelioma",
+        LOCTUDET %in% ("C46") ~ "Sarcoma de Kaposi",
+        LOCTUDET %in% ("C78") ~ "Secundária dos órgãos respiratórios e digestivos",
+        LOCTUDET %in% ("C79") ~ "Secundária de outras localizações",
+        LOCTUDET %in% ("C8") ~ "Outras glândulas salivares",
+        LOCTUDET %in% ("C81") ~ "Doença de Hodgkin",
+        LOCTUDET %in% ("C82") ~ "Linfoma não-Hodgkin, folicular (nodular)",
+        LOCTUDET %in% ("C83") ~ "Linfoma não-Hodgkin difuso",
+        LOCTUDET %in% ("C84") ~ "Linfomas de células T cutâneas e periféricas",
+        LOCTUDET %in% ("C85") ~ "Linfoma não-Hodgkin de outros tipos",
+        LOCTUDET %in% ("C88") ~ "Doenças imunoproliferativas",
+        LOCTUDET %in% ("C90") ~ "Mieloma múltiplo",
+        LOCTUDET %in% ("C91") ~ "Leucemia linfóide",
+        LOCTUDET %in% ("C92") ~ "Leucemia mielóide",
+        LOCTUDET %in% ("C93") ~ "Leucemia monocítica",
+        LOCTUDET %in% ("C96") ~ "Outras dos tecidos linfáticos, hematopoéticos e correlatos",
+        LOCTUDET %in% ("C97") ~ "Localizações múltiplas independentes",
+        LOCTUDET %in% ("D46") ~ "Síndromes mielodisplásicas (NÃO ONCOLÓGICO)",
+        LOCTUDET %in% ("E05") ~ "Hipertireoidismo (NÃO ONCOLÓGICO)",
+        LOCTUDET %in% ("N62") ~ "Hipertrofia da mama (NÃO ONCOLÓGICO)",
+        TRUE ~ LOCTUDET
+      )
+    ) %>%
   
   # --- Cálculo da Lei dos 60 Dias (Lei nº 12.732/2012) ---
   # O tempo conta do diagnóstico definitivo até o primeiro tratamento
@@ -299,7 +332,6 @@ dadosFinal <- dadosCancer %>%
     atraso60 = if_else(dias_ate_trat > 60, "Atraso", "Pontual"),
     atraso60 = factor(atraso60, levels = c("Pontual", "Atraso"))
   )
-  
 
 # ============================================
 # 4. Verificação (Sanity Check)
@@ -358,28 +390,28 @@ dadosFinal$LOCTUPRO <- NULL
 dadosFinal$DATAOBITO <- NULL
 dadosFinal$HISTFAMC <- NULL
 
-arrow::write_parquet(dadosFinal, "outputs/dadosFinal.parquet")
+arrow::write_parquet(dadosFinal, "../outputs/dadosFinal.parquet")
 
 # Dividindo o banco entre as 5 regiões do país
 # Importante notar que esse processo retira NAs e também não contabiliza pacientes do exterior
 
 dadosNorte <- dadosFinal |> 
   dplyr::filter(RegiaoResidencia == "Norte")
-arrow::write_parquet(dadosNorte, "outputs/dadosNorte.parquet")
+arrow::write_parquet(dadosNorte, "../outputs/dadosNorte.parquet")
 
 dadosNordeste <- dadosFinal |> 
   dplyr::filter(RegiaoResidencia == "Nordeste")
-arrow::write_parquet(dadosNordeste, "outputs/dadosNordeste.parquet")
+arrow::write_parquet(dadosNordeste, "../outputs/dadosNordeste.parquet")
 
 dadosCentroOeste <- dadosFinal |> 
   dplyr::filter(RegiaoResidencia == "Centro-Oeste")
-arrow::write_parquet(dadosCentroOeste, "outputs/dadosCentroOeste.parquet")
+arrow::write_parquet(dadosCentroOeste, "../outputs/dadosCentroOeste.parquet")
 
 dadosSudeste <- dadosFinal |> 
   dplyr::filter(RegiaoResidencia == "Sudeste")
-arrow::write_parquet(dadosSudeste, "outputs/dadosSudeste.parquet")
+arrow::write_parquet(dadosSudeste, "../outputs/dadosSudeste.parquet")
 
 dadosSul <- dadosFinal |> 
   dplyr::filter(RegiaoResidencia == "Sul")
-arrow::write_parquet(dadosSul, "outputs/dadosSul.parquet")
+arrow::write_parquet(dadosSul, "../outputs/dadosSul.parquet")
 
