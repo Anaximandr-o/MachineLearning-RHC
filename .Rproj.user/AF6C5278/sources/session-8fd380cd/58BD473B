@@ -1,0 +1,26 @@
+{
+    "id": "58BD473B",
+    "path": "C:/GitHub/MachineLearning-RHC/scripts/limpezaRHCantonio.R",
+    "project_path": "scripts/limpezaRHCantonio.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1781287659132.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "5,19",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1789336131,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1789336131962,
+    "read_only": false,
+    "read_only_alternatives": []
+}

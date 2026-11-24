@@ -1,0 +1,13 @@
+library(microdatasus)
+library(dplyr)
+dados <- fetch_datasus(year_start = 2024,
+                       month_start = 1,
+                       year_end = 2025,
+                       month_end = 12,
+                       uf = "all",
+                       information_system = "SIH-RD")
+dados <- process_sih(dados)
+dadosEndometriose <- dados %>%
+  filter(grepl("^N80", DIAG_PRINC))
+summary(dadosEndometriose)
+table(dadosEndometriose$CAR_INT)

@@ -1,16 +1,1 @@
-# R / RStudio
-.Rproj.user
-.Rhistory
-.RData
-.Ruserdata
-.positai
-
-# Dados
 data/dados_RHC_Geral.RDS
-
-# Jupyter
-.ipynb_checkpoints/
-
-# Anaconda
-anaconda_projects/
-.RDataTmp

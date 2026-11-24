@@ -287,7 +287,7 @@ dadosFinal <- dadosCancer %>%
   # --- Tratando LOCTUDET e melhorando a legibilidade
     dplyr::mutate(
       LOCTUDET = case_when(
-        LOCTUDET %in% c("C","C99") ~ NA_integer_,
+        LOCTUDET %in% c("C","C99") ~ NA_character_,
         LOCTUDET %in% ("C39") ~ "Outras localizações do aparelho respiratório",
         LOCTUDET %in% ("C43") ~ "Pele",
         LOCTUDET %in% ("C45") ~ "Mesotelioma",
@@ -311,6 +311,36 @@ dadosFinal <- dadosCancer %>%
         LOCTUDET %in% ("E05") ~ "Hipertireoidismo (NÃO ONCOLÓGICO)",
         LOCTUDET %in% ("N62") ~ "Hipertrofia da mama (NÃO ONCOLÓGICO)",
         TRUE ~ LOCTUDET
+      )
+    ) %>%
+    
+    # --- Tratando LOCTUPRI e melhorando a legibilidade
+    dplyr::mutate(
+      LOCTUPRI = case_when(
+        LOCTUPRI %in% c("C  .","C  .0","C00","C00.") ~ NA_character_,
+        LOCTUPRI %in% c("C00.0", "C00.1", "C00.2", "C00.3","C00.4", "C00.5", "C00.6","C00.8","C00.9") ~ "Lábio",
+        LOCTUPRI %in% c("C01","C01.","C01.0","C01.9","C02","C02.0","C02.1","C02.2","C02.3","C02.4","C02.8","C02.9") ~ "Língua",
+        LOCTUPRI %in% c("C03","C03.0","C03.1","C03.2","C03.4","C03.9") ~ "Gengiva",
+        LOCTUPRI %in% c("C04","C04.","C04.0","C04.1","C04.4","C04.8","C04.9") ~ "Boca",
+        LOCTUPRI %in% c("C05","C05.0","C05.1","C05.2","C05.8","C05.9") ~ "Palato",
+        LOCTUPRI %in% c("C06","C06.0","C06.1","C06.2","C06.8","C06.9") ~ "Outras partes da boca",
+        LOCTUPRI %in% c("C07","C07.","C07.0","C07.9") ~ "Glândula Parótida",
+        LOCTUPRI %in% c("C08.0","C08.1","C08.8","C08.9") ~ "Glândula submandibular, sublingual e salivar",
+        LOCTUPRI %in% c("C09","C09.0","C09.1","C09.8","C09.9") ~ "Amígdala",
+        LOCTUPRI %in% c("C10","C10.0","C10.1","C10.2","C10.3","C10.4","C10.8","C10.9") ~ "Orofaringe, valécula e epiglote",
+        LOCTUPRI %in% c("C11","C11.","C11.1","C11.2","C11.3","C11.8","C11.9") ~ "Nasofaringe",
+        LOCTUPRI %in% c("C12","C12.","C12.0","C12.2","C12.9") ~ "Seio piriforme",
+        LOCTUPRI %in% c("C12","C12.","C12.0","C12.2","C12.9") ~ "Seio piriforme",
+        LOCTUPRI %in% c("C90") ~ "Mieloma múltiplo",
+        LOCTUPRI %in% c("C91") ~ "Leucemia linfóide",
+        LOCTUPRI %in% c("C92") ~ "Leucemia mielóide",
+        LOCTUPRI %in% c("C93") ~ "Leucemia monocítica",
+        LOCTUPRI %in% c("C96") ~ "Outras dos tecidos linfáticos, hematopoéticos e correlatos",
+        LOCTUPRI %in% c("C97") ~ "Localizações múltiplas independentes",
+        LOCTUPRI %in% c("D46") ~ "Síndromes mielodisplásicas (NÃO ONCOLÓGICO)",
+        LOCTUPRI %in% c("E05") ~ "Hipertireoidismo (NÃO ONCOLÓGICO)",
+        LOCTUPRI %in% c("N62") ~ "Hipertrofia da mama (NÃO ONCOLÓGICO)",
+        TRUE ~ LOCTUPRI
       )
     ) %>%
   
