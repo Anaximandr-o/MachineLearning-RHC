@@ -24,7 +24,7 @@ dadosCancer <- readRDS("../data/dados_RHC_Geral.RDS")
 # ============================================
 # 3. Tratamento, Limpeza e Engenharia de Atributos
 # ============================================
-muni <- read_municipality(code_muni = "all", year = 2022) # Cria um data frame com todos os municípios do Brasil
+muni <- read_municipality(code_muni = "all", year = 2022, simplified = FALSE) # Cria um data frame com todos os municípios do Brasil
 
 muniPontos <- st_centroid(muni) |>
   dplyr::mutate(code_muni = as.character(code_muni)) |> # Fiz isso porque code_muni é double, enquanto PROCEDEN/MUUH é character, então dá erro no left join. Isso resolve :)
@@ -199,9 +199,10 @@ dadosFinal <- dadosCancer %>%
       OCUPACAO %in% c("174", "329") ~ "Empresários e diretores de empresa",
       OCUPACAO %in% c("729", "832", "835", "939", "931", "179") ~ "Indústria e metalurgia",
       OCUPACAO %in% c("039") ~ "Técnicos",
-      OCUPACAO %in% c("X70", "X50", "X60", "X40", "X", "X80") ~ "Não classificados",
+      OCUPACAO %in% c("X70", "X50", "X60", "X40", "X", "X80") ~ NA_character_,
       OCUPACAO %in% c("599") ~ "Turismo",
       OCUPACAO %in% c("152", "163") ~ "Jornalistas, fotógrafos e operadores de câmeras",
+      is.na(OCUPACAO) ~ NA_character_,
       TRUE ~ "Outros" # Ocupações com <1000 pacientes
     )
   ) %>%
@@ -307,125 +308,57 @@ dadosFinal <- dadosCancer %>%
         LOCTUDET %in% ("C93") ~ "Leucemia monocítica",
         LOCTUDET %in% ("C96") ~ "Outras dos tecidos linfáticos, hematopoéticos e correlatos",
         LOCTUDET %in% ("C97") ~ "Localizações múltiplas independentes",
-        LOCTUDET %in% ("D46") ~ "Síndromes mielodisplásicas (NÃO ONCOLÓGICO)",
-        LOCTUDET %in% ("E05") ~ "Hipertireoidismo (NÃO ONCOLÓGICO)",
-        LOCTUDET %in% ("N62") ~ "Hipertrofia da mama (NÃO ONCOLÓGICO)",
+        LOCTUDET %in% ("D46") ~ "Síndromes mielodisplásicas",
+        LOCTUDET %in% ("E05") ~ "Hipertireoidismo",
+        LOCTUDET %in% ("N62") ~ "Hipertrofia da mama",
         TRUE ~ LOCTUDET
       )
     ) %>%
+    
+    # Remove da base de dados os casos que não se encaixam como câncer
+    dplyr::filter(!LOCTUDET %in% c("Síndromes mielodisplásicas", "Hipertireoidismo", "Hipertrofia da mama")) %>%
+    droplevels() |> 
+    
+    # Remove da base de dados os casos que não se encaixam como câncer
+    dplyr::filter(!LOCTUPRI %in% c("D46.9", "E05", "N62")) %>%
+    droplevels() |> 
     
     # --- Tratando LOCTUPRI e melhorando a legibilidade
     dplyr::mutate(
       LOCTUPRI = case_when(
         LOCTUPRI %in% c("C  .","C  .0","C00","C00.","C99.9") ~ NA_character_,
-        grepl("^C00", LOCTUPRI) ~ "Lábio",
-        grepl("^C01", LOCTUPRI) ~ "Língua",
-        grepl("^C02", LOCTUPRI) ~ "Língua",
-        grepl("^C03", LOCTUPRI) ~ "Gengiva",
-        grepl("^C04", LOCTUPRI) ~ "Boca",
-        grepl("^C05", LOCTUPRI) ~ "Palato",
-        grepl("^C06", LOCTUPRI) ~ "Outras partes da boca",
-        grepl("^C07", LOCTUPRI) ~ "Glândula Parótida",
-        grepl("^C08", LOCTUPRI) ~ "Glândula submandibular, sublingual e salivar",
-        grepl("^C09", LOCTUPRI) ~ "Amígdala",
-        grepl("^C10", LOCTUPRI) ~ "Orofaringe, valécula e epiglote",
-        grepl("^C11", LOCTUPRI) ~ "Nasofaringe",
-        grepl("^C12", LOCTUPRI) ~ "Seio piriforme",
-        grepl("^C13", LOCTUPRI) ~ "Hipofaringe",
-        grepl("^C14", LOCTUPRI) ~ "Faringe",
-        grepl("^C15", LOCTUPRI) ~ "Esôfago",      
-        grepl("^C16", LOCTUPRI) ~ "Estômago",      
-        grepl("^C17", LOCTUPRI) ~ "Intestino delgado",      
-        grepl("^C18", LOCTUPRI) ~ "Cólon",      
-        grepl("^C19", LOCTUPRI) ~ "Junção retossigmóide",      
-        grepl("^C20", LOCTUPRI) ~ "Reto",      
-        grepl("^C21", LOCTUPRI) ~ "Ânus e canal anal",      
-        grepl("^C22", LOCTUPRI) ~ "Fígado e vias biliares intra-hepáticas"  ,   
-        grepl("^C23", LOCTUPRI) ~ "Vesícula biliar"  ,   
-        grepl("^C24", LOCTUPRI) ~ "Outras partes das vias biliares"  ,   
-        grepl("^C25", LOCTUPRI) ~ "Pâncreas"  ,   
-        grepl("^C26", LOCTUPRI) ~ "Outros órgãos digestivos"  ,   
-        grepl("^C30", LOCTUPRI) ~ "Cavidade nasal"  ,   
-        grepl("^C31", LOCTUPRI) ~ "Seios da face"  ,   
-        grepl("^C32", LOCTUPRI) ~ "Laringe"  ,   
-        grepl("^C33", LOCTUPRI) ~ "Traquéia"  ,   
-        grepl("^C34", LOCTUPRI) ~ "Brônquios e pulmões"  ,
-        grepl("^C37", LOCTUPRI) ~ "Timo"  ,   
-        grepl("^C38", LOCTUPRI) ~ "Coração, mediastino e pleura"  ,   
-        grepl("^C39", LOCTUPRI) ~ "Outras localizações do aparelho respiratório e dos órgãos intratorácicos"  ,   
-        grepl("^C40", LOCTUPRI) ~ "Ossos e cartilagens articulares dos membros"  ,   
-        grepl("^C41", LOCTUPRI) ~ "Ossos e cartilagens articulares de outras localizações"  ,   
-        grepl("^C42", LOCTUPRI) ~ NA_character_  ,   
-        grepl("^C43", LOCTUPRI) ~ "Pele"  ,   
-        grepl("^C44", LOCTUPRI) ~ "Outras da pele"  ,   
-        grepl("^C45", LOCTUPRI) ~ "Mesotelioma"  ,   
-        grepl("^C46", LOCTUPRI) ~ "Sarcoma de Kaposi"  ,   
+        grepl("^(C00|C01|C02|C03|C04|C05|C06|C07|C08|C09|C10|C11|C12|C13|C14)", LOCTUPRI) ~ "Lábio, cavidade oral e faringe",
+        grepl("^(C15|C16|C17|C18|C19|C20|C21|C22|C23|C24|C25|C26)", LOCTUPRI) ~ "Órgãos digestivos",
+        grepl("^(C30|C31|C32|C33|C34|C35|C36|C37|C38|C39)", LOCTUPRI) ~ "Aparelho respiratório e órgãos intratorácicos"  ,   
+        grepl("^(C40|C41)", LOCTUPRI) ~ "Ossos, articulações e cartilagens articulares"  ,   
+        grepl("^C43", LOCTUPRI) ~ NA_character_ ,   
+        grepl("^C44", LOCTUPRI) ~ "Pele"  ,   
+        grepl("^(C45|C46)", LOCTUPRI) ~ NA_character_  ,   
         grepl("^C47", LOCTUPRI) ~ "Nervos periféricos e sistema nervoso autônomo"  ,   
-        grepl("^C48", LOCTUPRI) ~ "Tecidos moles do retroperitônio e do peritônio"  ,   
-        grepl("^C49", LOCTUPRI) ~ "Tecido conjuntivo e outros tecidos moles"  ,   
+        grepl("^C48", LOCTUPRI) ~ "Retroperitônio e peritônio"  ,   
+        grepl("^C49", LOCTUPRI) ~ "Tecido conjuntivo, subcutâneo e outros tecidos moles"  ,   
         grepl("^C50", LOCTUPRI) ~ "Mama"  ,   
-        grepl("^C51", LOCTUPRI) ~ "Vulva"  ,   
-        grepl("^C52", LOCTUPRI) ~ "Vagina"  ,   
-        grepl("^C53", LOCTUPRI) ~ "Colo do útero"  ,   
-        grepl("^C54", LOCTUPRI) ~ "Corpo do útero"  ,   
-        grepl("^C55", LOCTUPRI) ~ "Útero, porção não especificada"  ,   
-        grepl("^C56", LOCTUPRI) ~ "Ovário"  ,   
-        grepl("^C57", LOCTUPRI) ~ "Outros órgãos genitais femininos"  ,   
-        grepl("^C58", LOCTUPRI) ~ "Placenta"  ,   
-        grepl("^C60", LOCTUPRI) ~ "Pênis"  ,   
-        grepl("^C61", LOCTUPRI) ~ "Próstata"  ,   
-        grepl("^C62", LOCTUPRI) ~ "Testículos"  ,   
-        grepl("^C63", LOCTUPRI) ~ "Outros órgãos genitais masculinos"  ,   
-        grepl("^C64", LOCTUPRI) ~ "Rim, exceto pelve renal"  ,   
-        grepl("^C65", LOCTUPRI) ~ "Pelve renal"  ,   
-        grepl("^C66", LOCTUPRI) ~ "Ureteres"  ,   
-        grepl("^C67", LOCTUPRI) ~ "Bexiga"  ,   
-        grepl("^C68", LOCTUPRI) ~ "Outros órgãos urinários"  ,   
-        grepl("^C69", LOCTUPRI) ~ "Olhos e anexos"  ,   
-        grepl("^C70", LOCTUPRI) ~ "Meninges"  ,   
-        grepl("^C71", LOCTUPRI) ~ "Encéfalo"  ,   
-        grepl("^C72", LOCTUPRI) ~ "Medula espinhal, nervos cranianos e outras partes do sistema nervoso central"  ,   
-        grepl("^C73", LOCTUPRI) ~ "Glândula tireóide"  ,   
-        grepl("^C74", LOCTUPRI) ~ "Glândula supra-renal"  ,   
-        grepl("^C75", LOCTUPRI) ~ "Outras glândulas endócrinas"  ,   
+        grepl("^(C51|C52|C53|C54|C55|C56|C57|C58)", LOCTUPRI) ~ "Órgãos genitais femininos"  ,   
+        grepl("^(C60|C61|C62|C63)", LOCTUPRI) ~ "Órgãos genitais masculinos"  ,   
+        grepl("^(C64|C65|C66|C67|C68)", LOCTUPRI) ~ "Trato urinário"  ,   
+        grepl("^(C69|C70|C71|C72)", LOCTUPRI) ~ "Olho, cérebro e outras partes do sistema nervoso central"  ,   
+        grepl("^(C73|C74|C75)", LOCTUPRI) ~ "Tireóide e outras glândulas endócrinas"  ,   
         grepl("^C76", LOCTUPRI) ~ "Outras localizações e localizações mal definidas"  ,   
-        grepl("^C77", LOCTUPRI) ~ "Secundária e não especificada dos gânglios linfáticos"  ,   
-        grepl("^C78", LOCTUPRI) ~ "Secundária dos órgãos respiratórios e digestivos"  ,   
-        grepl("^C79", LOCTUPRI) ~ "Secundária de outras localizações"  ,   
-        grepl("^C80", LOCTUPRI) ~ "Sem especificação de localização"  ,   
-        grepl("^C81", LOCTUPRI) ~ "Doença de Hodgkin"  ,   
-        grepl("^C82", LOCTUPRI) ~ "Linfoma não-Hodgkin, folicular (nodular)"  ,   
-        grepl("^C83", LOCTUPRI) ~ "Linfoma não-Hodgkin difuso"  ,   
-        grepl("^C84", LOCTUPRI) ~ "Linfomas de células T cutâneas e periféricas"  ,   
-        grepl("^C85", LOCTUPRI) ~ "Linfoma não-Hodgkin de outros tipos e de tipo não especificado",  
-        grepl("^C88", LOCTUPRI) ~ "Doenças imunoproliferativas malignas"  ,   
-        grepl("^C90", LOCTUPRI) ~ "Mieloma múltiplo e neoplasias malignas de plasmócitos"  ,   
-        grepl("^C91", LOCTUPRI) ~ "Leucemia linfóide"  ,   
-        grepl("^C92", LOCTUPRI) ~ "Leucemia mielóide"  ,   
-        grepl("^C93", LOCTUPRI) ~ "Leucemia monocítica"  ,   
-        grepl("^C96", LOCTUPRI) ~ "Outras e não especificadas dos tecidos linfático, hematopoético e tecidos correlatos"  ,   
-        grepl("^C97", LOCTUPRI) ~ "Localizações múltiplas independentes (primárias)"  ,   
-        TRUE ~ LOCTUPRI
+        grepl("^C77", LOCTUPRI) ~ "Linfonodos"  ,   
+        grepl("^(C78|C79)", LOCTUPRI) ~ NA_character_  ,   
+        grepl("^C80", LOCTUPRI) ~ "Localização Primária Desconhecida"  ,   
+        TRUE ~ NA_character_
       )
     ) %>%
     
+    # Remove da base de dados os casos que não se encaixam como câncer
+    dplyr::filter(!TIPOHIST %in% c("7400/8") & !grepl("/(0|1|2)$", TIPOHIST)) %>%
+    droplevels() |> 
+    
     # --- Tratando TIPOHIST e melhorando a legibilidade
     dplyr::mutate(
-      TIPOHIST = case_when(
-        TIPOHIST %in% c("/","/3)","0000/0","1   /","1401/3","5220/3","8000//","8006/3","8010/","8014/0","8040/3","8070/","8070/9","8071/7","8077/3","8100/3","8140/9","8146/3",
-                        "8163/3","8170/5","8211/1","8500//","8503/","8720/","9999/9","99999","C090/3","8260/6","8261/1","8390/1","8440/5","8442/3",
-                        "8451/3","8462/3","8472/3","8473/3","8491/3","8500/0","8500/5","8500/6","8500/9","8511/3","8551/0",
-                        "8590/3","8636/3","8640/0","8687/3","8712/3","8732/3","8832/","8825/3","8870/3","8888/0","8888/8",
-                        "89363","9031/3","9161/3","9190/3","9291/3","9350/3","9395/3","9400/8","9421/3","9422/3","9425/3",
-                        "9536/0","9551/3","9592/3","9593/3","9594/3","9595/3","9600/3","9620/3","9657/3","9658/3","9660/3",
-                        "9666/3","9669/3","9672/3","9674/3","9676/3","9681/3","9682/3","9683/3","9685/3","9686/3",
-                        "9692/3","9693/3","9694/3","9696/1","9696/3","9697/3","9703/3","9704/3","9706/3","9707/3",
-                        "9710/3","9711/3","9713/3","9715/3","9717//","9720/3","9722/3","9723/3","9731/2","9732/1",
-                        "9733/2","9735/3","9751/3","9803/3","9804/3","9821/3","9822/3","9824/3","9825/3","9830/3",
-                        "9831/3","9850/3","9862/3","9864/3","9868/3","9880/3","9890/3","9950/","9893/3","9899/3",
-                        "9900/3","9932/3","9941/3","9950/1","9960/1","9961/1","9962/1","9980/1","9981/1","9982/1",
-                        "9983/1","9984/1","9989/1","9990/1","9990/3","9990/9","9991/6","9991/7","9992/0","9992/2","9992/6") ~ NA_character_,
-        TIPOHIST %in% ("7400/8") ~ "Carcinoma in situ (NÃO INVASIVO)",
+      TIPOHIST_Agrupado = case_when(
+        TIPOHIST %in% c("/","/3)","0000/0","1   /","1401/3","5220/3","9999/9","99999","C090/3", "9990/1","9990/3","9990/9","9991/6","9991/7","9992/0","9992/2","9992/6") ~ NA_character_,
         # 800 NEOPLASIAS, SOE
         TIPOHIST %in% ("8000/3") ~ "Neoplasia maligna",
         TIPOHIST %in% ("8000/6") ~ "Neoplasia metástica",
@@ -1045,9 +978,69 @@ dadosFinal <- dadosCancer %>%
         TIPOHIST %in% ("9986/3") ~ "Síndrome mielodisplásica com deleção 5q (5q-)",
         TIPOHIST %in% ("9987/3") ~ "Síndrome mielodisplásica relacionada a terapia, SOE",
         TIPOHIST %in% ("9989/3") ~ "Síndrome mielodisplásica, SOE", # Não existe nenhum código depois desse
-        TRUE ~ TIPOHIST
+        TRUE ~ NA_character_
       )
     ) %>%
+    
+    # --- Agrupando TIPOHIST
+    dplyr::mutate(
+      TIPOHIST = case_when(
+        TIPOHIST %in% c("/","/3)","0000/0","1   /","1401/3","5220/3","9999/9","99999","C090/3", "9990/1","9990/3","9990/9","9991/6","9991/7","9992/0","9992/2","9992/6") ~ NA_character_,
+        TIPOHIST %in% ("7400/8") ~ "Carcinoma in situ (NÃO INVASIVO)",
+        grepl("^800", TIPOHIST) ~ "Neoplasias, SOE",
+        grepl("^(801|802|803|804)", TIPOHIST) ~ "Neoplasias, SOE",
+        grepl("^(805|806|807|808)", TIPOHIST) ~ "Neoplasias de células escamosas",
+        grepl("^(809|810|811)", TIPOHIST) ~ "Neoplasias basocelulares",
+        grepl("^(812|813)", TIPOHIST) ~ "Papilomas e carcinomas de células transicionais",
+        grepl("^(814|815|816|817|818|819|820|821|822|823|824|825|826|827|828|829|830|831|832|833|834|835|836|837|838)", TIPOHIST) ~ "Adenomas e adenocarcinomas",
+        grepl("^(839|840|841|842)", TIPOHIST) ~ "Neoplasias dos anexos e apêndices cutâneos",
+        grepl("^843", TIPOHIST) ~ "Neoplasias mucoepidermóides",
+        grepl("^(844|845|846|847|848|849)", TIPOHIST) ~ "Neoplasias císticas, mucinosas e serosas",
+        grepl("^(850|851|852|853|854)", TIPOHIST) ~ "Neoplasias ductais e lobulares",
+        grepl("^855", TIPOHIST) ~ "Neoplasias de células acinosas",
+        grepl("^(856|857)", TIPOHIST) ~ "Neoplasias epiteliais complexas",
+        grepl("^858", TIPOHIST) ~ "Neoplasias epitelias tímicas",
+        grepl("^(859|860|861|862|863|864|865|866|867)", TIPOHIST) ~ "Neoplasias especializadas das gônadas",
+        grepl("^(868|869|870|871)", TIPOHIST) ~ "Paragangliomas e tumores glômicos",
+        grepl("^(872|873|874|875|876|877|878|879)", TIPOHIST) ~ "Nevos e melanomas",
+        grepl("^880", TIPOHIST) ~ "Tumores e sarcomas de partes moles, SOE",
+        grepl("^(881|882|883)", TIPOHIST) ~ "Neoplasias fibromatosas",
+        grepl("^884", TIPOHIST) ~ "Neoplasias mixomatosas",
+        grepl("^(885|886|887|888)", TIPOHIST) ~ "Neoplasias lipomatosas",
+        grepl("^(889|890|891|892)", TIPOHIST) ~ "Neoplasias miomatosas",
+        grepl("^(893|894|895|896|897|898|899)", TIPOHIST) ~ "Neoplasias complexas mistas e do estroma",
+        grepl("^(900|901|902|903)", TIPOHIST) ~ "Neoplasias fibroepitelias",
+        grepl("^904", TIPOHIST) ~ "Neoplasias sinoviais",
+        grepl("^905", TIPOHIST) ~ "Neoplasias mesoteliais",
+        grepl("^(906|907|908|909)", TIPOHIST) ~ "Neoplasias de células germinativas",
+        grepl("^910", TIPOHIST) ~ "Neoplasias trofoblásticas",
+        grepl("^911", TIPOHIST) ~ "Mesonefromas",
+        grepl("^(912|913|914|915|916)", TIPOHIST) ~ "Tumores de vasos sanguíneos",
+        grepl("^917", TIPOHIST) ~ "Tumores de vasos linfáticos",
+        grepl("^(918|919|920|921|922|923|924)", TIPOHIST) ~ "Neoplasias ósseas e condromatosas",
+        grepl("^925", TIPOHIST) ~ "Tumores de células gigantes",
+        grepl("^926", TIPOHIST) ~ "Tumores ósseos diversos (C40.-,C41.-)",
+        grepl("^(927|928|929|930|931|932|933|934)", TIPOHIST) ~ "Tumores odontogênicos (C41.-)",
+        grepl("^(935|936|937)", TIPOHIST) ~ "Tumores diversos",
+        grepl("^(938|939|940|941|942|943|944|945|946|947|948)", TIPOHIST) ~ "Gliomas",
+        grepl("^(949|950|951|952)", TIPOHIST) ~ "Neoplasias neuroepiteliais",
+        grepl("^953", TIPOHIST) ~ "Meningiomas (C70.-)",
+        grepl("^(954|955|956|957)", TIPOHIST) ~ "Tumores da bainha nervosa",
+        grepl("^958", TIPOHIST) ~ "Tumores de células granulares e sarcoma alveolar de partes moles",
+        grepl("^(959|960|961|962|963|964|965|966|967|968|969|970|971|972)", TIPOHIST) ~ "Linfomas de Hodgkin e não-Hodgkin",
+        grepl("^973", TIPOHIST) ~ "Tumores de plasmócitos",
+        grepl("^974", TIPOHIST) ~ "Tumores de mastócitos",
+        grepl("^975", TIPOHIST) ~ "Neoplasias de histiócitos e células linfóides acessórias",
+        grepl("^976", TIPOHIST) ~ "Doenças imunoproliferativas",
+        grepl("^(980|981|982|983|984|985|986|987|988|989|990|991|992|993|994)", TIPOHIST) ~ "Leucemias",
+        grepl("^(995|996)", TIPOHIST) ~ "Alterações mielo proliferativas crônicas (C42.1)",
+        grepl("^997", TIPOHIST) ~ "Outras alterações hematológicas",
+        grepl("^998", TIPOHIST) ~ "Síndromes mielodisplásicas (C42.1)",
+        TRUE ~ NA_character_
+      )
+    ) %>%
+    
+    
   
   # --- Cálculo da Lei dos 60 Dias (Lei nº 12.732/2012) ---
   # O tempo conta do diagnóstico definitivo até o primeiro tratamento
@@ -1102,6 +1095,8 @@ dadosFinal$icdo3_site_field <- NULL
 dadosFinal$icd9cm <- NULL
 dadosFinal$icd10 <- NULL
 dadosFinal$icd10cm <- NULL
+dadosFinal$OCUPACAO <- NULL
+dadosFinal$TIPOHIST <- NULL
 
 # Removendo datas que permitem ao modelo "prever" o futuro
 dadosFinal$DTDIAGNO <- NULL
